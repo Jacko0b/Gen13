@@ -5,43 +5,49 @@ using namespace std;
 
 vector<char> alphabet = {'0', '1', '2', '3', '4', '5', '6', '7', '8', '9', 'a', 'b', 'c'};
 
-
-
-//#############################################
 // 2 przypadki
 // Dla n parzystego bierzemy wszystkie cyfry pokolei
-// Dla n nieparzystego cyfry "dookoła" te co się powtarzają są wszystkie,
+// Dla n nieparzystego cyfry "dookoła" te co się powtarzają są wszystkie (nieparzyste i parzyste),
 // ale cyfra "środkowa" musi być parzysta - bo nie ma pary 
+bool isDigitEven (char digit){
+    bool isEven = false;
+    if (digit == '0' || digit == '2' || digit == '4' ||
+        digit == '6' || digit == '8' || digit == 'a' ||
+        digit == 'c') 
+    {
+        isEven=true;
+    }
+    return isEven;
+}
 
-void generatePalindromes(int n, int pos, vector<char>& current) {
-    // jeżeli pos jest większy rowny niż połowa - (n+1/2)
-    if (pos >= (n + 1) / 2) {
-        // Utwórz pełny palindrom z częściowo wygenerowanego ciągu
+void generatePalindromes(int n, int currentPosition, vector<char>& currentDigit) {
+
+    if (currentPosition >= (n + 1) / 2) {
+        // Podstawiamy cyfry z pierwszej polowy na ich lustrzane odbicia od konca i wypisujemy
         for (int i = n / 2 - 1; i >= 0; --i) {
-            current[n - 1 - i] = current[i];
-        }                                                                               //TO-DO dziala tylko dla n=1,2
-        //Sprawdzenie czy n jest nieparzyste - wsadzanie w srodek tylko parzystej liczby
-        if(n%2==1){
-            if (current[n - 1] == '0' || current[n - 1] == '2' || current[n - 1] == '4' ||
-             current[n - 1] == '6' || current[n - 1] == '8' || current[n - 1] == 'a' ||
-             current[n - 1] == 'c') {
-            for (char c : current) {
-                printf("%c", c);
-            }
+            currentDigit[n - 1 - i] = currentDigit[i];
+        }     
+        for (char c : currentDigit) {
+            printf("%c", c);
         }
-        }else{
-           for (char c : current) {
-                printf("%c", c);
-            } 
-        }
-        
         return;
     }
 
     // Generuj cyfry w kolejności rosnącej
-    for (char c : alphabet) {
-        current[pos] = c;
-        generatePalindromes(n, pos + 1, current);
+    for (char digit : alphabet) {
+        //Jak n jest parzysty to generuj wszystkie palindromy
+        currentDigit[currentPosition] = digit;
+        if(n%2==0){       
+            generatePalindromes(n, currentPosition + 1, currentDigit);  
+        }
+
+        else {
+            if(currentPosition == n / 2 && !isDigitEven(digit)){
+            }
+            else{
+                generatePalindromes(n, currentPosition + 1, currentDigit);
+            }
+        } 
     }
 }
 
@@ -49,18 +55,21 @@ int main() {
     int stringsToGenerate;
     scanf("%d",&stringsToGenerate);
 
-    if (stringsToGenerate >= 11 || stringsToGenerate <= 0) {
-        return 1;
-    }
-    //Wywołanie generatora dla każdego wiersza
+    //Wywołanie generatora dla każdego wiersza danych
     while(stringsToGenerate>0){
         int n;
         scanf("%d",&n) ;
-        vector<char> current(n);
-        generatePalindromes(n, 0, current);
-        printf("\n");
+        //Sprawdzenie czy się mieścimy w warunkach dlugosci palindromu
+        if (n > 10 || n < 1) {
+            printf("Błędne dane");
+        }
+        else{
+            vector<char> currentDigit(n);
+            generatePalindromes(n, 0, currentDigit);
+            printf("\n");
+        }
+        
         stringsToGenerate--;
     }
-
     return 0;
 }
